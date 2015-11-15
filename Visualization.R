@@ -11,6 +11,7 @@ dataset$tweet = gsub('hotel','',dataset$tweet)
 #For 5 best and worst hotels
 best_file_list <- c('hotel_247957.dat', 'hotel_150841.dat', 'hotel_149399.dat', 'hotel_478252.dat', 'hotel_218524.dat')
 worst_file_list <- c('hotel_85003.dat', 'hotel_100584.dat', 'hotel_252969.dat', 'hotel_305809.dat', 'hotel_306174.dat')
+
 for (file in best_file_list){
   
   # if the merged dataset doesn't exist, create it
@@ -47,15 +48,15 @@ library(tm)
 library(SnowballC)
 
 corpus = Corpus(VectorSource(dataset$tweet))
-corpus = tm_map(corpus, tolower)
+corpus = tm_map(corpus, content_transformer(tolower))
 corpus = tm_map(corpus, removePunctuation)
 corpus = tm_map(corpus, removeWords, stopwords("english"))
 corpus = tm_map(corpus, stemDocument)
 frequencies = TermDocumentMatrix(corpus)
 frequencies
-findFreqTerms(frequencies, lowfreq=70)
+findFreqTerms(frequencies, lowfreq=30)
 term.freq <- rowSums(as.matrix(frequencies))
-term_sub.freq <- subset(term.freq, term.freq >= 70) 
+term_sub.freq <- subset(term.freq, term.freq >= 30) 
 df <- data.frame(term = names(term_sub.freq),freq = term_sub.freq, stringsAsFactors=FALSE) 
 
 library(ggplot2)
@@ -66,4 +67,4 @@ library(wordcloud)
 m <- as.matrix(frequencies) 
 # calculate the frequency of words and sort it by frequency 
 word.freq <- sort(rowSums(m), decreasing = T) 
-wordcloud(words = names(word.freq), freq = word.freq, min.freq = 3, random.order = F) 
+wordcloud(words = names(word.freq), freq = word.freq, min.freq = 10, random.order = F) 

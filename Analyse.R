@@ -4,7 +4,7 @@ library(tm)
 library(SnowballC)
 
 corpus = Corpus(VectorSource(dataset$tweet))
-corpus = tm_map(corpus, tolower)
+corpus = tm_map(corpus, content_transformer(tolower))
 corpus = tm_map(corpus, removePunctuation)
 corpus = tm_map(corpus, removeWords, stopwords("english"))
 corpus = tm_map(corpus, stemDocument)
@@ -28,12 +28,16 @@ for (i in 1:nrow(dataset)){
   # compute score
   dataset$score[i] = sum(pos.matches) - sum(neg.matches)
   
-  # assign sentiment polarity based on scores
-  dataset$sentiment[i] = ifelse(dataset$score[i]>=1,'positive', ifelse(dataset$score[i]<=-1, 'negative', 'neutral'))    
 }
 
 #top 5
 tail(sort(tapply(dataset$score, dataset$hotel, sum)), 5)
-
 #bottom 5
 head(sort(tapply(dataset$score, dataset$hotel, sum)), 5)
+
+#save for later rank prediction
+scores = tapply(dataset$score, dataset$hotel, sum)
+rank_set = data.frame('hotel'=names(scores), 'score'=scores)
+write.table(rank_set,'rank_set', row.names= FALSE)
+
+
